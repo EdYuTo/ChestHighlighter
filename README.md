@@ -1,4 +1,6 @@
 For now install at:
 
-%appdata%\r2modmanPlus-local\RiskOfRain2\profiles\anyprofile\BepInEx\plugins\edyuto-ChestHighlighter
-
+- Windows
+   - `%appdata%\r2modmanPlus-local\RiskOfRain2\profiles\{ACTIVE-PROFILE}\BepInEx\plugins\edyuto-ChestHighlighter`
+- Linux
+   - `$HOME/.config/r2modmanPlus-local/RiskOfRain2/profiles/{ACTIVE-PROFILE}/BepInEx/plugins/edyuto-ChestHighlighter`
