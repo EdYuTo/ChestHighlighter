@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  release:
+    name: Run release
+    permissions: 
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup dotnet version
+        uses: actions/setup-dotnet@v4
+        with:
+            dotnet-version: '2.1.0'
+
+      - name: Run build
+        run: |
+          dotnet build ChestHighlighter.sln
+      
+      - name: Zip build files
+        run: |
+          mkdir Release
+          mv ChestHighlighter/bin/Debug/netstandard2.1/ChestHighlighter.dll Release
+          mv ChestHighlighter/bin/Debug/netstandard2.1/ChestHighlighter.pdb Release
+          mv ChestHighlighter/bin/Debug/netstandard2.1/ChestHighlighter.deps.json Release
+          zip -r Release.zip Release
+
+      - name: Get tag
+        id: get_tag
+        run: |
+          TAG=$(grep -oPm1 "(?<=<Version>)[^<]+" ChestHighlighter/ChestHighlighter.csproj)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+        
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          release_name: Release ${{ steps.get_tag.outputs.tag }}
+          draft: false
+          prerelease: false
+      
+      - name: Upload assets to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Release.zip
+          asset_name: Release.zip
+          asset_content_type: application/zip
